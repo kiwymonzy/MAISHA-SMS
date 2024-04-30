@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Firebase Phone Authentication</title>
+  <!-- Add Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.4.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.4.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.4.0/firebase-firestore.js"></script>
+
+  <!-- Initialize Firebase -->
+  <script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyDQOy77fE7exZyz1PaZb20RQAq8Z9SttTQ",
+  authDomain: "maishahouse24.firebaseapp.com",
+  projectId: "maishahouse24",
+  storageBucket: "maishahouse24.appspot.com",
+  messagingSenderId: "1022475935346",
+  appId: "1:1022475935346:web:c0a7b078111fd4fc786ceb",
+  measurementId: "G-FRYTCYJNGE",
+    };
+
+    firebase.initializeApp(firebaseConfig);
+  </script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    form {
+      text-align: center;
+    }
+
+    #successDiv {
+      display: none;
+      text-align: center;
+      background-color: #dff0d8;
+      border: 1px solid #3c763d;
+      color: #3c763d;
+      padding: 10px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <form id="loginForm">
+    <h2>Login with Phone Number</h2>
+    
+    <!-- Select Country Code -->
+    <select id="countryCode">
+      <option value="+255">+255 (TZ)</option>
+      <!-- Add more options as needed -->
+    </select>
+    
+    <!-- Input for Phone Number -->
+    <input type="tel" id="phoneNumber" placeholder="Enter Phone Number" required>
+    
+    <!-- Button to send verification code -->
+    <button type="button" onclick="sendVerificationCode()">Send Code</button>
+    
+    <!-- Input for Verification Code -->
+    <input type="text" id="verificationCode" placeholder="Enter Verification Code" required>
+    
+    <!-- Button to verify code -->
+    <button type="button" onclick="verifyCode()">Verify Code</button>
+
+    <p id="errorText"></p>
+  </form>
+
+  <!-- Hidden div for successful login -->
+  <div id="successDiv">
+    <h3>Login Successful!</h3>
+    <p>Welcome to your dashboard.</p>
+    <!-- Add more content as needed -->
+  </div>
+
+  <!-- Firebase Authentication Script -->
+  <script>
+    let confirmationResult;
+
+    function sendVerificationCode() {
+      const phoneNumber = document.getElementById('phoneNumber').value;
+      const countryCode = document.getElementById('countryCode').value;
+      const fullPhoneNumber = countryCode + phoneNumber;
+
+      const appVerifier = new firebase.auth.RecaptchaVerifier('loginForm', {
+        'size': 'invisible'
+      });
+
+      firebase.auth().signInWithPhoneNumber(fullPhoneNumber, appVerifier)
+        .then((result) => {
+          confirmationResult = result;
+        })
+        .catch((error) => {
+          document.getElementById('errorText').innerText = `Error: ${error.message}`;
+        });
+    }
+
+    function verifyCode() {
+      const code = document.getElementById('verificationCode').value;
+
+      confirmationResult.confirm(code)
+        .then((result) => {
+          document.getElementById('errorText').innerText = "Verification successful!";
+          showSuccessDiv();
+        })
+        .catch((error) => {
+          document.getElementById('errorText').innerText = `Error: ${error.message}`;
+        });
+    }
+
+    function showSuccessDiv() {
+      // Hide the login form
+      document.getElementById('loginForm').style.display = 'none';
+      // Show the success div
+      document.getElementById('successDiv').style.display = 'block';
+    }
+  </script>
+</body>
+</html>
